@@ -148,8 +148,9 @@
         visibility: visible;
         transform: none;
       }
+      .slide.center { text-align: center; }
       .inner { width: 100%; max-width: 980px; }
-      .inner.wide { max-width: 1080px; }
+      .inner.wide { max-width: 1100px; }
 
       /* ── Typography & primitives ──────────────────────────── */
       .eyebrow {
@@ -204,6 +205,23 @@
       .coral { color: var(--warn); }
       .blue { color: var(--info); }
 
+      /* ── Big statement (hook) ─────────────────────────────── */
+      .statement {
+        margin: 0 auto;
+        font-size: clamp(2.2rem, 6.2vw, 4.4rem);
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        line-height: 1.04;
+        max-width: 18ch;
+      }
+      .statement em { color: var(--accent-2); font-style: normal; }
+      .statement-sub {
+        margin: 1.6rem auto 0;
+        font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+        color: var(--muted);
+        max-width: 46ch;
+      }
+
       /* ── Title slide ──────────────────────────────────────── */
       .hero-mark {
         width: 72px; height: 72px;
@@ -222,7 +240,7 @@
         margin: 1.4rem 0 0;
         font-size: clamp(1.15rem, 2.2vw, 1.6rem);
         color: var(--muted);
-        max-width: 40ch;
+        max-width: 44ch;
       }
       .title-sub b { color: var(--text); font-weight: 650; }
       .behaviors-line {
@@ -274,7 +292,7 @@
       }
       @keyframes pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
 
-      /* ── Cards / behaviors ────────────────────────────────── */
+      /* ── Cards / behaviors / pillars ──────────────────────── */
       .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
       .card {
         padding: 1.35rem 1.4rem;
@@ -344,13 +362,8 @@
         font-family: var(--mono); font-size: 0.72rem; color: var(--faint);
       }
       .chunk .meta .type { color: var(--c); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
-      .chunk .meta .who { color: var(--muted); }
       .chunk .body { font-size: 0.96rem; color: var(--text); line-height: 1.5; }
-      .chunk.green { --c: var(--accent); }
       .chunk.coral { --c: var(--warn); }
-      .chunk.super { opacity: 0.5; --c: var(--neutral); }
-      .chunk.super .body { text-decoration: line-through; text-decoration-color: var(--faint); }
-      .stack { display: grid; gap: 0.7rem; }
 
       /* ── Recall terminal block ────────────────────────────── */
       .recall {
@@ -371,6 +384,11 @@
       .recall .who { color: var(--info); }
       .recall .txt { color: var(--muted); }
       .recall .foot { color: var(--faint); }
+      .undertag {
+        margin-top: 0.9rem; font-family: var(--mono); font-size: 0.78rem; color: var(--faint);
+        display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem;
+      }
+      .undertag b { color: var(--info); }
 
       /* ── Guard alert ──────────────────────────────────────── */
       .guard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; align-items: start; }
@@ -402,8 +420,67 @@
       .track { height: 7px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; }
       .track > i { display: block; height: 100%; background: var(--warn); border-radius: 999px; }
 
+      /* ── Multiplayer (two-tool handoff) ───────────────────── */
+      .mp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: stretch; }
+      .mp-panel {
+        border: 1px solid var(--border);
+        border-top: 2px solid var(--c, var(--border));
+        border-radius: 12px;
+        background: var(--surface);
+        padding: 1.05rem 1.2rem;
+      }
+      .mp-panel.a { --c: var(--accent); }
+      .mp-panel.b { --c: var(--info); }
+      .mp-who { font-weight: 700; color: var(--c); font-size: 1.02rem; }
+      .mp-when { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); margin: 0.1rem 0 0.8rem; }
+      .bubble {
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        line-height: 1.5;
+        border-radius: 8px;
+        padding: 0.5rem 0.7rem;
+        margin-bottom: 0.5rem;
+      }
+      .bubble.q { background: var(--surface-2); color: var(--muted); }
+      .bubble.ans { background: rgba(118, 185, 0, 0.08); color: var(--text); }
+      .bubble.ans2 { background: rgba(116, 169, 214, 0.09); color: var(--text); }
+      .mp-extract { font-size: 0.74rem; color: var(--faint); margin: 0.55rem 0 0.3rem; }
+      .mp-ck { display: flex; gap: 0.55rem; align-items: baseline; margin-top: 0.32rem; font-size: 0.84rem; color: var(--muted); }
+      .mp-ck .k {
+        flex-shrink: 0; font-family: var(--mono); font-size: 0.63rem; text-transform: uppercase;
+        letter-spacing: 0.06em; padding: 0.12rem 0.42rem; border-radius: 4px; font-weight: 600;
+      }
+      .mp-ck .k.dec { background: rgba(118,185,0,0.15); color: var(--accent-2); }
+      .mp-ck .k.fin { background: rgba(116,169,214,0.15); color: var(--info); }
+      .mp-ck .k.con { background: rgba(124,138,125,0.18); color: var(--neutral); }
+      .mp-banner {
+        margin-top: 1rem;
+        border: 1px solid rgba(118, 185, 0, 0.45);
+        background: rgba(118, 185, 0, 0.07);
+        border-radius: 10px;
+        padding: 0.85rem 1.15rem;
+        font-size: clamp(0.96rem, 1.5vw, 1.12rem);
+        color: var(--muted);
+      }
+      .mp-banner b { color: var(--accent-2); font-weight: 700; }
+      .arrow-mid { display: grid; place-items: center; color: var(--faint); font-size: 1.3rem; }
+
+      /* ── Steps (how it works) ─────────────────────────────── */
+      .steps { list-style: none; margin: 0; padding: 0; counter-reset: s; display: grid; gap: 0.7rem; }
+      .steps > li {
+        display: flex; gap: 1rem; align-items: baseline;
+        padding: 0.8rem 1.1rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+      }
+      .steps > li::before {
+        counter-increment: s; content: '0' counter(s);
+        font-family: var(--mono); font-size: 0.92rem; color: var(--accent-2); font-weight: 700; flex-shrink: 0;
+      }
+      .steps .s-body { font-size: clamp(0.95rem, 1.5vw, 1.12rem); color: var(--muted); }
+      .steps .s-body b { color: var(--text); font-weight: 650; }
+      .steps .s-body .mono { font-family: var(--mono); font-size: 0.86em; color: var(--info); }
+
       /* ── Pipeline ─────────────────────────────────────────── */
-      .pipe { display: flex; flex-wrap: wrap; align-items: center; gap: 0.55rem; margin-bottom: 1.4rem; }
+      .pipe { display: flex; flex-wrap: wrap; align-items: center; gap: 0.55rem; margin-bottom: 1.2rem; }
       .node {
         padding: 0.6rem 0.95rem;
         border-radius: 9px;
@@ -427,22 +504,20 @@
         border: 1px solid var(--border); border-radius: 6px; padding: 0.28rem 0.6rem; background: var(--surface);
       }
       .port b { color: var(--text); }
-      .note-row { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; font-family: var(--mono); font-size: 0.78rem; color: var(--faint); margin-top: 0.2rem; }
-
-      /* ── Stat strip ───────────────────────────────────────── */
-      .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.6rem; }
-      .stat { border: 1px solid var(--border); background: var(--surface); border-radius: 11px; padding: 1.1rem 1.2rem; }
-      .stat .big { font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 800; letter-spacing: -0.03em; color: var(--accent-2); }
-      .stat .big.warn { color: var(--warn); }
-      .stat .big.info { color: var(--info); }
-      .stat .cap { font-size: 0.86rem; color: var(--muted); margin-top: 0.25rem; }
+      .stackrow {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.2rem 0 1rem;
+        font-family: var(--mono); font-size: 0.8rem; color: var(--muted);
+      }
+      .stackrow .lab { color: var(--faint); }
+      .stackrow .s { color: var(--accent-2); }
+      .note-row { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; font-family: var(--mono); font-size: 0.78rem; color: var(--faint); }
 
       /* ── Demo beats ───────────────────────────────────────── */
-      .beats { list-style: none; margin: 0; padding: 0; counter-reset: b; display: grid; gap: 0.75rem; }
+      .beats { list-style: none; margin: 0; padding: 0; counter-reset: b; display: grid; gap: 0.7rem; }
       .beats > li {
         display: flex; gap: 0.9rem; align-items: baseline;
-        padding: 0.7rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
-        font-size: clamp(0.96rem, 1.5vw, 1.12rem); color: var(--muted);
+        padding: 0.65rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+        font-size: clamp(0.94rem, 1.45vw, 1.08rem); color: var(--muted);
       }
       .beats > li::before {
         counter-increment: b; content: counter(b, decimal-leading-zero);
@@ -450,7 +525,6 @@
       }
       .beats > li b { color: var(--text); font-weight: 650; }
       .beats > li.last { border-color: rgba(118,185,0,0.5); background: rgba(118,185,0,0.06); }
-      .beats > li.last::before { color: var(--accent-2); }
 
       /* ── Close slide ──────────────────────────────────────── */
       .team { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.7rem; margin: 1.6rem 0 0; }
@@ -460,9 +534,9 @@
       .who-card .d { font-size: 0.78rem; color: var(--faint); margin-top: 0.15rem; }
 
       /* ── Responsive ───────────────────────────────────────── */
-      @media (max-width: 820px) {
-        .cards, .stats, .team { grid-template-columns: 1fr; }
-        .points.two, .guard-grid { grid-template-columns: 1fr; }
+      @media (max-width: 860px) {
+        .cards, .team { grid-template-columns: 1fr; }
+        .points.two, .guard-grid, .mp-grid { grid-template-columns: 1fr; }
         .slide { padding: 4.4rem 1.3rem 3.6rem; }
         .brand, .footer .mid { display: none; }
       }
@@ -497,7 +571,7 @@
         <div class="inner">
           <div class="hero-mark">M</div>
           <h1 class="title">Mnemo</h1>
-          <p class="title-sub"><b>Local memory for agentic coding tools.</b> Your agent finally remembers what your team already learned — without anything leaving the box.</p>
+          <p class="title-sub"><b>A persistent, local memory layer for AI agents.</b> One shared context across Claude, Cursor, ChatGPT &amp; Codex — that never leaves the box.</p>
           <div class="behaviors-line">
             <span class="pill"><span class="dot" style="background:var(--accent)"></span>Capture</span>
             <span class="pill"><span class="dot" style="background:var(--info)"></span>Recall</span>
@@ -505,101 +579,103 @@
             <span class="pill"><span class="dot" style="background:var(--neutral)"></span>Zero&nbsp;egress</span>
           </div>
           <div class="title-meta">
-            <span>Dell&nbsp;×&nbsp;NVIDIA GB10 Hackathon</span>
+            <span>Dell&nbsp;×&nbsp;NVIDIA GB10</span>
             <span class="sep">/</span>
-            <span>Runs entirely on-box</span>
+            <span>Local-first &amp; always-on</span>
             <span class="sep">/</span>
-            <span>4-person build</span>
+            <span>Multiplayer</span>
           </div>
           <p class="hint">Press <kbd>→</kbd> or <kbd>Space</kbd> to advance &nbsp;·&nbsp; <kbd>F</kbd> for fullscreen</p>
         </div>
       </section>
 
-      <!-- 2 ── The problem ──────────────────────────────── -->
-      <section class="slide">
+      <!-- 2 ── Hook ─────────────────────────────────────── -->
+      <section class="slide center">
         <div class="inner">
-          <span class="eyebrow"><span class="dot warn"></span><span class="num">01</span> · The problem</span>
-          <h2>Your coding agent has <span class="warn">amnesia.</span></h2>
-          <p class="lead">Every new session starts from zero. So every session, your team re-explains the same things by hand:</p>
-          <ul class="points">
-            <li class="info">The <b>stack and conventions</b> — re-pasted into the prompt, again.</li>
-            <li class="warn">Which <b>decisions</b> were made, and <b>why</b> — lost the moment the window closes.</li>
-            <li class="warn">What's already been <b>tried and failed</b> — so the agent confidently proposes the dead-end you already paid for.</li>
-          </ul>
-          <p class="kicker warn">A teammate learns once. An agent forgets every time.</p>
+          <p class="statement">AI doesn't have a quality problem.<br/>It has a <em>memory problem.</em></p>
+          <p class="statement-sub">The models are brilliant. They just forget everything the moment the session ends — and nothing they learn is ever shared.</p>
         </div>
       </section>
 
-      <!-- 3 ── The cost ─────────────────────────────────── -->
+      <!-- 3 ── Problem ──────────────────────────────────── -->
+      <section class="slide">
+        <div class="inner">
+          <span class="eyebrow"><span class="dot warn"></span><span class="num">01</span> · The problem</span>
+          <h2>Every agent is an <span class="warn">amnesiac</span> — and a loner.</h2>
+          <p class="lead">AI is now standard across engineering teams. But each interaction is <strong>stateless by default</strong> — every session starts from zero.</p>
+          <ul class="points two">
+            <li class="info">Your team re-explains the <b>stack and conventions</b> by hand, every session.</li>
+            <li class="warn">The <b>decisions and the "why"</b> vanish when the window closes.</li>
+            <li class="warn">The agent confidently re-proposes the <b>dead-end you already paid for</b>.</li>
+            <li><b>It's single-player</b> — what you teach Claude, Cursor never learns.</li>
+          </ul>
+          <p class="kicker warn">At team scale: duplicated explanations, inconsistent output, lost velocity.</p>
+        </div>
+      </section>
+
+      <!-- 4 ── The cost ─────────────────────────────────── -->
       <section class="slide">
         <div class="inner">
           <span class="eyebrow"><span class="dot warn"></span><span class="num">02</span> · What amnesia costs</span>
           <h2>It isn't annoying. <span class="warn">It's expensive.</span></h2>
           <div class="chunk coral" style="margin-bottom:1.1rem">
-            <div class="meta"><span class="type">demo/payments</span><span class="who">· production incident</span></div>
+            <div class="meta"><span class="type">demo/payments</span><span>· production incident</span></div>
             <div class="body" style="font-size:1.08rem;line-height:1.55">
-              A payment webhook is failing. The agent helpfully adds a <b>retry loop</b> to re-send the charge until it goes through.
+              A payment webhook is failing. The agent helpfully adds a <b>retry loop</b> to re-send the charge.
               But the charge <b>already succeeded</b> upstream — so every retry creates a <b>second charge</b>. Customers get billed twice.
             </div>
           </div>
-          <p class="lead" style="margin-bottom:0">This already happened once. It was reverted the same day. But nothing stops the agent from suggesting <em>the exact same fix</em> again tomorrow — it never knew it failed.</p>
+          <p class="lead" style="margin-bottom:0">This already happened once and was reverted the same day. But nothing stops the agent from proposing <em>the exact same fix</em> tomorrow — it never knew it failed.</p>
           <p class="kicker warn">The same mistake, on repeat, at machine speed.</p>
         </div>
       </section>
 
-      <!-- 4 ── Why naive memory fails ───────────────────── -->
+      <!-- 5 ── Meet Mnemo + pillars ─────────────────────── -->
       <section class="slide">
         <div class="inner wide">
-          <span class="eyebrow"><span class="dot"></span><span class="num">03</span> · Why bolting on "memory" isn't enough</span>
-          <h2>Two ways naive memory makes it <span class="warn">worse.</span></h2>
-          <div class="cards" style="grid-template-columns:1fr 1fr;gap:1.1rem">
-            <div class="card coral">
-              <span class="tag">Failure 1 — drift</span>
-              <h3>Stale memory, read as current</h3>
-              <p>Dump transcripts into a vector store and recall resurfaces a decision that's <b>since been reversed</b>. The agent acts on a truth that expired. Confidently wrong is worse than blank.</p>
-            </div>
-            <div class="card coral">
-              <span class="tag">Failure 2 — exposure</span>
-              <h3>Crown jewels in the cloud</h3>
-              <p>Your code, decisions, and incidents are the <b>most sensitive thing you own</b>. Every memory tool ships them to someone else's servers and asks you to trust it.</p>
-            </div>
-          </div>
-          <p class="kicker">The more useful memory gets, the more dangerous it is to send away.</p>
-        </div>
-      </section>
-
-      <!-- 5 ── Meet Mnemo ───────────────────────────────── -->
-      <section class="slide">
-        <div class="inner wide">
-          <span class="eyebrow"><span class="dot"></span><span class="num">04</span> · The solution</span>
-          <h2>Mnemo — a <em>local memory plane</em> for your agent.</h2>
-          <p class="lead">It sits between your coding agent and the model. It <strong>captures</strong> what matters, <strong>recalls</strong> it before every turn, and <strong>guards</strong> against repeating mistakes — and every byte stays on the box.</p>
+          <span class="eyebrow"><span class="dot"></span><span class="num">03</span> · The solution</span>
+          <h2>Mnemo — a <em>persistent memory plane</em> for your agents.</h2>
+          <p class="lead">It sits between your agents and the model: <strong>captures</strong> what your team learns, <strong>recalls</strong> it in every tool, and <strong>guards</strong> against repeats — and every byte stays on the box.</p>
           <div class="cards">
             <div class="card green">
-              <span class="tag">Capture</span>
-              <h3>Remember the right things</h3>
-              <p>Typed, attributed knowledge chunks from every session — decisions, dead-ends, conventions. Not raw transcripts.</p>
+              <span class="tag">Local</span>
+              <h3>Never leaves the box</h3>
+              <p>Runs fully local / self-hosted. Context stays in the environment — private, compliant, air-gapped-ready.</p>
             </div>
             <div class="card blue">
-              <span class="tag">Recall</span>
-              <h3>Surface them in time</h3>
-              <p>The most load-bearing memory for the repo, prepended to the model before it answers a single turn.</p>
+              <span class="tag">Portable</span>
+              <h3>One memory, every tool</h3>
+              <p>Not locked to one vendor. The same knowledge base across Claude, Cursor, ChatGPT &amp; Codex.</p>
             </div>
             <div class="card coral">
-              <span class="tag">Guard</span>
-              <h3>Stop the repeat</h3>
-              <p>Checks the agent's output against known dead-ends and locked decisions — and blocks the mistake before it ships.</p>
+              <span class="tag">Shared</span>
+              <h3>Multiplayer, not solo</h3>
+              <p>Today's AI is single-player. Mnemo makes it shared — one decision, reflected across everyone's tools.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- 6 ── Capture ──────────────────────────────────── -->
+      <!-- 6 ── How it works ─────────────────────────────── -->
+      <section class="slide">
+        <div class="inner">
+          <span class="eyebrow"><span class="dot"></span><span class="num">04</span> · How it works</span>
+          <h2>60 seconds to set up. <em>Zero infrastructure.</em></h2>
+          <ul class="steps">
+            <li><div class="s-body"><b>Connect</b> — paste a <span class="mono">one-line MCP URL</span> into your tool's settings. No API keys, no servers. (MCP — the open standard Anthropic built for AI-tool integration.)</div></li>
+            <li><div class="s-body"><b>Capture</b> — as you work, decisions, findings &amp; conventions are auto-committed. <b>Two-pass extraction</b> types them — structured knowledge, not a transcript.</div></li>
+            <li><div class="s-body"><b>Recall</b> — next session, in any tool, even a different teammate: your context is just there, prepended before the model answers.</div></li>
+            <li><div class="s-body"><b>Guard</b> — the agent's output is checked against known dead-ends &amp; locked decisions. Repeats get blocked before they ship.</div></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 7 ── Capture ──────────────────────────────────── -->
       <section class="slide">
         <div class="inner">
           <span class="eyebrow"><span class="dot"></span><span class="num">05</span> · Capture</span>
           <h2>Typed memory, <em>not transcripts.</em></h2>
-          <p class="lead">Mnemo extracts structured, attributed chunks from each session — each one a small, queryable fact with a type:</p>
+          <p class="lead">A two-pass extraction pulls structured, attributed chunks from each session — each a small, queryable fact with a type:</p>
           <div class="chips">
             <span class="chip"><span class="dot" style="background:var(--accent)"></span>decision</span>
             <span class="chip"><span class="dot" style="background:var(--warn)"></span>dead-end</span>
@@ -609,15 +685,15 @@
             <span class="chip"><span class="dot" style="background:var(--neutral)"></span>context</span>
           </div>
           <ul class="points two">
-            <li><b>Supersession</b> — a better decision retires the old one. Exactly one stays active per topic; history is kept, not confused for the present.</li>
-            <li class="info"><b>Dedup</b> — near-identical chunks are recognised and dropped (0.96 ≥ 0.95). No bloat, no drift.</li>
+            <li><b>Supersession</b> — a better decision retires the old one. Exactly one stays active per topic.</li>
+            <li class="info"><b>Dedup</b> — near-identical chunks are dropped (0.96 ≥ 0.95). No bloat, no drift.</li>
             <li class="warn"><b>Provenance</b> — every chunk keeps <b>who</b> said it and <b>why</b>. Reasoning, not just text.</li>
             <li><b>On the box</b> — extraction runs on a local model. Nothing is sent out to be "remembered."</li>
           </ul>
         </div>
       </section>
 
-      <!-- 7 ── Recall ───────────────────────────────────── -->
+      <!-- 8 ── Recall ───────────────────────────────────── -->
       <section class="slide">
         <div class="inner">
           <span class="eyebrow"><span class="dot info"></span><span class="num">06</span> · Recall</span>
@@ -631,13 +707,15 @@
 <span class="row">  <span class="t-dec">● decision </span> <span class="who">@priya </span> <span class="txt">retries must send an Idempotency-Key derived</span></span>
 <span class="row">                       <span class="txt">from the event id · supersedes the naive resend</span></span>
 <span class="row">  <span class="t-conv">● convention</span> <span class="who">@marcus</span> <span class="txt">verify the Stripe-Signature header first</span></span>
-<span class="row"> </span>
-<span class="row">  <span class="foot">3 chunks · selected by relevance + recency · 0 bytes sent off-box</span></span>
+          </div>
+          <div class="undertag">
+            <span><b>Hybrid retrieval</b> · vector + BM25 + Reciprocal Rank Fusion</span>
+            <span><b>Cross-tool · cross-person</b> · 0 bytes sent off-box</span>
           </div>
         </div>
       </section>
 
-      <!-- 8 ── Guard ────────────────────────────────────── -->
+      <!-- 9 ── Guard ────────────────────────────────────── -->
       <section class="slide">
         <div class="inner wide">
           <span class="eyebrow"><span class="dot warn"></span><span class="num">07</span> · Guard</span>
@@ -665,26 +743,54 @@
         </div>
       </section>
 
-      <!-- 9 ── Local-first wedge ────────────────────────── -->
+      <!-- 10 ── Multiplayer moment ──────────────────────── -->
       <section class="slide">
-        <div class="inner">
-          <span class="eyebrow"><span class="dot"></span><span class="num">08</span> · Why local wins</span>
-          <h2>Local isn't a feature. <em>It's the only architecture that works.</em></h2>
-          <ul class="points">
-            <li><b>Zero egress</b> — inference, memory, and extraction never leave the box. Nothing to leak, nothing to trust.</li>
-            <li class="info">The more agentic Mnemo gets — full-repo context, live execution — the more impossible the cloud becomes. Local stops being a compliance checkbox and becomes the <b>only allowed design</b>.</li>
-            <li><b>Built for the GB10</b> — 128&nbsp;GB unified memory holds the LLM, the embeddings, and the guard model <b>resident at once</b>. A laptop can't; a datacenter you don't control, you won't.</li>
-          </ul>
-          <p class="kicker">Pull the network cable mid-demo — Mnemo keeps running. <span class="accent">Offline · still running.</span></p>
+        <div class="inner wide">
+          <span class="eyebrow"><span class="dot"></span><span class="num">08</span> · In practice</span>
+          <h2>Two teammates. Two tools. <em>One shared memory.</em></h2>
+          <div class="mp-grid">
+            <div class="mp-panel a">
+              <div class="mp-who">Alex · Claude</div>
+              <div class="mp-when">Monday — planning the auth system</div>
+              <div class="bubble q">Should we use Supabase or Firebase for auth?</div>
+              <div class="bubble ans">Supabase — RLS gives you row-level security without a separate auth layer. Firebase needs custom claims for the same pattern.</div>
+              <div class="mp-extract">Mnemo extracts &amp; saves:</div>
+              <div class="mp-ck"><span class="k dec">decision</span><span>Use Supabase over Firebase for auth</span></div>
+              <div class="mp-ck"><span class="k fin">finding</span><span>Row-level security is built-in via RLS</span></div>
+              <div class="mp-ck"><span class="k con">convention</span><span>Authorization handled via RLS policies</span></div>
+            </div>
+            <div class="mp-panel b">
+              <div class="mp-who">Jordan · Cursor</div>
+              <div class="mp-when">Thursday — implementing, different tool</div>
+              <div class="bubble q">What did the team decide about auth?</div>
+              <div class="bubble ans2">Your team selected Supabase — for its built-in row-level security, which avoids a separate auth layer. The convention is to enforce authorization through Supabase RLS policies.</div>
+              <div class="mp-extract" style="color:var(--info)">↳ inherited from Alex's session — no one re-explained anything.</div>
+            </div>
+          </div>
+          <div class="mp-banner">Same decision. Different person. Different tool. <b>Shared memory.</b> No Slack message. No meeting. No shared doc.</div>
         </div>
       </section>
 
-      <!-- 10 ── Architecture ────────────────────────────── -->
+      <!-- 11 ── Local-first + always-on ─────────────────── -->
+      <section class="slide">
+        <div class="inner">
+          <span class="eyebrow"><span class="dot"></span><span class="num">09</span> · Why local</span>
+          <h2>Local isn't a feature. <em>It's the only architecture that works.</em></h2>
+          <ul class="points">
+            <li><b>Zero egress, no cloud LLM calls</b> — inference, memory, and extraction all stay on the box. Nothing to leak, nothing to trust.</li>
+            <li class="info"><b>Runs entirely on the Dell GB10</b> — 128 GB unified memory holds the LLM, the embeddings, and the guard model resident at once. Always-on, air-gapped-ready.</li>
+            <li><b>The more agentic it gets</b> — full-repo context, live execution — the more impossible the cloud becomes. Local stops being a checkbox and becomes the only allowed design.</li>
+          </ul>
+          <p class="kicker">Pull the network cable mid-demo — it keeps running. <span class="accent">Offline · still running.</span></p>
+        </div>
+      </section>
+
+      <!-- 12 ── Architecture + stack ────────────────────── -->
       <section class="slide">
         <div class="inner wide">
-          <span class="eyebrow"><span class="dot"></span><span class="num">09</span> · Architecture</span>
+          <span class="eyebrow"><span class="dot"></span><span class="num">10</span> · Architecture</span>
           <h2>One proxy. Every turn. <em>Fail-open.</em></h2>
-          <p class="lead" style="margin-bottom:1.2rem">The agent's traffic flows through a thin local proxy that orchestrates the whole loop:</p>
+          <p class="lead" style="margin-bottom:1.1rem">The agent's traffic flows through a thin local proxy that orchestrates the whole loop:</p>
           <div class="pipe">
             <div class="node"><div class="n">OpenClaw</div><div class="p">agent</div></div>
             <span class="arrow">→</span>
@@ -698,9 +804,13 @@
             <span class="arrow">→</span>
             <div class="node"><div class="n">response</div><div class="p">+ warning</div></div>
           </div>
-          <div class="note-row" style="margin-bottom:1.2rem">
+          <div class="note-row" style="margin-bottom:1.1rem">
             <span>↺ Capture runs in the background after each turn</span>
             <span>· Recall &amp; Guard fail-open — never block the agent</span>
+          </div>
+          <div class="stackrow">
+            <span class="lab">Built on the stack:</span>
+            <span class="s">OpenClaw</span><span>·</span><span class="s">NVIDIA NemoClaw</span><span>·</span><span class="s">OpenShell</span><span>·</span><span class="s">vLLM</span><span>·</span><span class="s">MCP</span>
           </div>
           <div class="ports">
             <span class="port"><b>vLLM</b> :8000</span>
@@ -709,31 +819,30 @@
             <span class="port"><b>proxy</b> :8100</span>
             <span class="port"><b>dashboard</b> :5173</span>
           </div>
-          <p class="note-row" style="margin-top:1rem;color:var(--faint)">Full diagrams: <span style="color:var(--info)">/architecture.html</span></p>
         </div>
       </section>
 
-      <!-- 11 ── Demo ────────────────────────────────────── -->
+      <!-- 13 ── Live demo ───────────────────────────────── -->
       <section class="slide">
         <div class="inner">
-          <span class="eyebrow"><span class="dot"></span><span class="num">10</span> · Live demo</span>
+          <span class="eyebrow"><span class="dot"></span><span class="num">11</span> · Live demo</span>
           <h2>What you'll see, on the box.</h2>
           <ul class="beats">
-            <li><b>Capture builds up</b> — typed chunks land in the feed as the agent works the payments repo.</li>
-            <li><b>A better decision supersedes the old one</b> — the idempotency rule retires the naive retry; one truth stays active.</li>
-            <li><b>A near-duplicate is dropped</b> — Mnemo recognises it and skips it. No bloat.</li>
-            <li><b>The agent proposes the naive retry</b> — Guard fires at 0.94 and blocks the double-charge before it ships.</li>
+            <li><b>Capture builds up</b> — typed chunks land in the feed as the agent works.</li>
+            <li><b>A better decision supersedes the old one</b> — one truth stays active per topic.</li>
+            <li><b>The agent proposes the naive retry</b> — Guard fires at 0.94 and blocks the double-charge.</li>
+            <li><b>The handoff</b> — a second tool recalls the same decision &amp; rationale. Shared memory, live.</li>
             <li class="last"><b>We pull the network cable</b> — and it all keeps running. Zero egress, proven on stage.</li>
           </ul>
-          <p class="note-row" style="margin-top:1.1rem;color:var(--faint)">The dashboard falls back to seed data when the backend is down — so the demo can't fail, with a network or without one.</p>
+          <p class="note-row" style="margin-top:1.1rem;color:var(--faint)">Seed fallback means the demo can't fail — it runs with the backend, or without it.</p>
         </div>
       </section>
 
-      <!-- 12 ── Close ───────────────────────────────────── -->
+      <!-- 14 ── Close ───────────────────────────────────── -->
       <section class="slide">
         <div class="inner wide">
           <div class="hero-mark" style="width:56px;height:56px;font-size:1.6rem;margin-bottom:1.1rem">M</div>
-          <h2 style="font-size:clamp(2rem,5vw,3.4rem)">Give your agent a memory it can <em>trust</em> —<br/>and never let it leave the building.</h2>
+          <h2 style="font-size:clamp(2rem,5vw,3.4rem)">Give your agents a memory they can <em>trust</em> —<br/>shared across every tool, and it never leaves the building.</h2>
           <div class="team">
             <div class="who-card"><div class="k">Person A</div><div class="v">Inference proxy</div><div class="d">recall · guard · capture</div></div>
             <div class="who-card"><div class="k">Person B</div><div class="v">memory-core</div><div class="d">capture · dedup · recall</div></div>
@@ -742,9 +851,9 @@
           </div>
           <p class="lead" style="margin-top:1.5rem;margin-bottom:0">Built on <strong>cntxt's</strong> structured-memory engine, ported to run <strong>fully local</strong> on the Dell Pro Max with GB10.</p>
           <div class="behaviors-line" style="margin-top:1.2rem">
-            <span class="pill"><span class="dot" style="background:var(--accent)"></span>Capture</span>
-            <span class="pill"><span class="dot" style="background:var(--info)"></span>Recall</span>
-            <span class="pill"><span class="dot" style="background:var(--warn)"></span>Guard</span>
+            <span class="pill"><span class="dot" style="background:var(--accent)"></span>Local</span>
+            <span class="pill"><span class="dot" style="background:var(--info)"></span>Portable</span>
+            <span class="pill"><span class="dot" style="background:var(--warn)"></span>Shared</span>
             <span class="pill"><span class="dot" style="background:var(--neutral)"></span>Zero&nbsp;egress</span>
           </div>
         </div>
@@ -754,8 +863,8 @@
     <!-- Chrome -->
     <div class="footer">
       <span class="egress" id="egress"><span class="dot"></span>on-box · zero egress</span>
-      <span class="mid">Mnemo · local memory plane</span>
-      <span class="counter"><b id="cur">1</b> / <span id="total">12</span></span>
+      <span class="mid">Mnemo · persistent memory for AI agents</span>
+      <span class="counter"><b id="cur">1</b> / <span id="total">14</span></span>
     </div>
     <div class="nav">
       <button id="prev" aria-label="Previous slide">‹</button>
