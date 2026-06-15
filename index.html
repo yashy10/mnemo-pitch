@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mnemo — Pitch</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0c0a;
+        --surface: #0f1210;
+        --surface-2: #151916;
+        --border: #272e28;
+        --text: #e7ece6;
+        --muted: #a3afa1;
+        --faint: #7b867a;
+        --accent: #76b900;
+        --accent-2: #93d717;
+        --warn: #ef8a6a;
+        --info: #74a9d6;
+        --neutral: #7c8a7d;
+        --mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body {
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        background:
+          radial-gradient(120% 75% at 50% -15%, rgba(118, 185, 0, 0.09), transparent 55%),
+          linear-gradient(180deg, #0b0e0b 0%, #090a09 100%);
+        color: var(--text);
+        line-height: 1.5;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ── Persistent chrome ────────────────────────────────── */
+      .brand {
+        position: fixed;
+        top: 1.4rem;
+        left: 1.7rem;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        pointer-events: none;
+      }
+      .brand-mark {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border-radius: 7px;
+        border: 1px solid rgba(118, 185, 0, 0.4);
+        background: rgba(118, 185, 0, 0.1);
+        color: var(--accent);
+        font-family: var(--mono);
+        font-weight: 700;
+        box-shadow: 0 0 22px -10px rgba(118, 185, 0, 0.6);
+      }
+      .brand-name {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .footer {
+        position: fixed;
+        bottom: 1.15rem;
+        left: 1.7rem;
+        right: 1.7rem;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        font-family: var(--mono);
+        font-size: 0.66rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--faint);
+      }
+      .egress { display: inline-flex; align-items: center; gap: 0.45rem; }
+      .egress .dot {
+        width: 7px; height: 7px; border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 10px -1px var(--accent);
+      }
+      .counter { color: var(--muted); }
+      .counter b { color: var(--text); }
+
+      .progress {
+        position: fixed;
+        left: 0; bottom: 0; right: 0;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.05);
+        z-index: 25;
+      }
+      .progress > i {
+        display: block; height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        box-shadow: 0 0 12px -1px var(--accent);
+        transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .nav {
+        position: fixed;
+        bottom: 1.05rem;
+        right: 1.7rem;
+        z-index: 30;
+        display: flex;
+        gap: 0.4rem;
+      }
+      .nav button {
+        width: 30px; height: 30px;
+        display: grid; place-items: center;
+        border-radius: 7px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--muted);
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: color 0.15s, border-color 0.15s, background 0.15s;
+      }
+      .nav button:hover { color: var(--text); border-color: var(--accent); background: var(--surface-2); }
+
+      /* ── Slides ───────────────────────────────────────────── */
+      .deck { position: relative; width: 100vw; height: 100vh; }
+      .slide {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5.2rem 2rem 4rem;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(14px) scale(0.992);
+        transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;
+        overflow-y: auto;
+      }
+      .slide.is-active {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+      }
+      .inner { width: 100%; max-width: 980px; }
+      .inner.wide { max-width: 1080px; }
+
+      /* ── Typography & primitives ──────────────────────────── */
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        margin: 0 0 1.15rem;
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--faint);
+      }
+      .eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+      .eyebrow .dot.warn { background: var(--warn); }
+      .eyebrow .dot.info { background: var(--info); }
+      .eyebrow .num { color: var(--muted); }
+
+      h1.title {
+        margin: 0;
+        font-size: clamp(3rem, 9vw, 6.5rem);
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 0.92;
+      }
+      h2 {
+        margin: 0 0 1.1rem;
+        font-size: clamp(1.7rem, 4.4vw, 3rem);
+        font-weight: 750;
+        letter-spacing: -0.025em;
+        line-height: 1.04;
+      }
+      h2 em { color: var(--accent-2); font-style: normal; }
+      h2 .warn { color: var(--warn); }
+      h2 .info { color: var(--info); }
+      .lead {
+        margin: 0 0 1.8rem;
+        font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+        color: var(--muted);
+        max-width: 64ch;
+      }
+      .lead strong { color: var(--text); font-weight: 600; }
+      .kicker {
+        margin: 1.7rem 0 0;
+        font-size: clamp(1.05rem, 1.7vw, 1.25rem);
+        font-weight: 600;
+        color: var(--accent-2);
+        letter-spacing: -0.01em;
+      }
+      .kicker.warn { color: var(--warn); }
+      .accent { color: var(--accent-2); }
+      .coral { color: var(--warn); }
+      .blue { color: var(--info); }
+
+      /* ── Title slide ──────────────────────────────────────── */
+      .hero-mark {
+        width: 72px; height: 72px;
+        display: grid; place-items: center;
+        border-radius: 16px;
+        border: 1px solid rgba(118, 185, 0, 0.4);
+        background: rgba(118, 185, 0, 0.1);
+        color: var(--accent);
+        font-family: var(--mono);
+        font-weight: 700;
+        font-size: 2.1rem;
+        margin-bottom: 1.6rem;
+        box-shadow: 0 0 44px -14px rgba(118, 185, 0, 0.7);
+      }
+      .title-sub {
+        margin: 1.4rem 0 0;
+        font-size: clamp(1.15rem, 2.2vw, 1.6rem);
+        color: var(--muted);
+        max-width: 40ch;
+      }
+      .title-sub b { color: var(--text); font-weight: 650; }
+      .behaviors-line {
+        margin-top: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.85rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        font-family: var(--mono);
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      .pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+      .title-meta {
+        margin-top: 2.4rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.7rem 1.4rem;
+        font-family: var(--mono);
+        font-size: 0.8rem;
+        color: var(--faint);
+        letter-spacing: 0.04em;
+      }
+      .title-meta .sep { color: var(--border); }
+      .hint {
+        margin-top: 1.6rem;
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.1em;
+        color: var(--faint);
+        animation: pulse 2.6s ease-in-out infinite;
+      }
+      .hint kbd {
+        font-family: var(--mono);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        border-radius: 5px;
+        padding: 0.08rem 0.4rem;
+        color: var(--muted);
+      }
+      @keyframes pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+
+      /* ── Cards / behaviors ────────────────────────────────── */
+      .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+      .card {
+        padding: 1.35rem 1.4rem;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        border-top: 2px solid var(--c, var(--border));
+      }
+      .card .tag {
+        display: inline-block;
+        margin-bottom: 0.55rem;
+        font-family: var(--mono);
+        font-size: 0.66rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: var(--c, var(--muted));
+      }
+      .card h3 { margin: 0 0 0.4rem; font-size: 1.2rem; font-weight: 700; color: var(--c, var(--text)); }
+      .card p { margin: 0; font-size: 0.92rem; color: var(--muted); line-height: 1.5; }
+      .card.green { --c: var(--accent-2); }
+      .card.blue { --c: var(--info); }
+      .card.coral { --c: var(--warn); }
+
+      /* ── Bulleted points ──────────────────────────────────── */
+      .points { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.05rem; }
+      .points > li { position: relative; padding-left: 1.7rem; font-size: clamp(1rem, 1.6vw, 1.18rem); color: var(--muted); }
+      .points > li::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0.5em;
+        width: 9px; height: 9px;
+        border-radius: 50%;
+        background: var(--m, var(--accent));
+        box-shadow: 0 0 0 4px rgba(118, 185, 0, 0.12);
+      }
+      .points > li.warn::before { background: var(--warn); box-shadow: 0 0 0 4px rgba(239, 138, 106, 0.12); }
+      .points > li.info::before { background: var(--info); box-shadow: 0 0 0 4px rgba(116, 169, 214, 0.12); }
+      .points > li b { color: var(--text); font-weight: 650; }
+      .points.two { grid-template-columns: 1fr 1fr; gap: 1.1rem 2rem; }
+
+      /* ── Chip row (chunk types) ───────────────────────────── */
+      .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.2rem 0 1.6rem; }
+      .chip {
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        padding: 0.34rem 0.75rem;
+        border-radius: 7px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+      /* ── Sample chunk card ────────────────────────────────── */
+      .chunk {
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--c, var(--border));
+        background: var(--surface);
+        border-radius: 10px;
+        padding: 1rem 1.15rem;
+      }
+      .chunk .meta {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.8rem;
+        margin-bottom: 0.55rem;
+        font-family: var(--mono); font-size: 0.72rem; color: var(--faint);
+      }
+      .chunk .meta .type { color: var(--c); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+      .chunk .meta .who { color: var(--muted); }
+      .chunk .body { font-size: 0.96rem; color: var(--text); line-height: 1.5; }
+      .chunk.green { --c: var(--accent); }
+      .chunk.coral { --c: var(--warn); }
+      .chunk.super { opacity: 0.5; --c: var(--neutral); }
+      .chunk.super .body { text-decoration: line-through; text-decoration-color: var(--faint); }
+      .stack { display: grid; gap: 0.7rem; }
+
+      /* ── Recall terminal block ────────────────────────────── */
+      .recall {
+        border: 1px solid var(--border);
+        background: #0c0f0c;
+        border-radius: 12px;
+        padding: 1.3rem 1.5rem;
+        font-family: var(--mono);
+        font-size: clamp(0.78rem, 1.15vw, 0.94rem);
+        line-height: 1.75;
+        overflow-x: auto;
+      }
+      .recall .tag { color: var(--accent-2); }
+      .recall .row { display: block; white-space: pre; }
+      .recall .t-dead { color: var(--warn); }
+      .recall .t-dec { color: var(--accent-2); }
+      .recall .t-conv { color: var(--neutral); }
+      .recall .who { color: var(--info); }
+      .recall .txt { color: var(--muted); }
+      .recall .foot { color: var(--faint); }
+
+      /* ── Guard alert ──────────────────────────────────────── */
+      .guard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; align-items: start; }
+      .agent-say {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--surface);
+        padding: 1rem 1.15rem;
+      }
+      .agent-say .who { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+      .agent-say .quote { margin-top: 0.5rem; font-size: 1.02rem; color: var(--text); }
+      .alert {
+        border: 1px solid rgba(239, 138, 106, 0.45);
+        border-radius: 10px;
+        background: linear-gradient(180deg, rgba(239, 138, 106, 0.1), rgba(15, 18, 16, 0.6));
+        padding: 1rem 1.15rem;
+      }
+      .alert .hd {
+        display: flex; align-items: center; gap: 0.55rem;
+        font-family: var(--mono); font-weight: 700; font-size: 0.78rem;
+        letter-spacing: 0.12em; text-transform: uppercase; color: var(--warn);
+        margin-bottom: 0.6rem;
+      }
+      .alert .hd .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--warn); box-shadow: 0 0 10px 0 var(--warn); }
+      .alert .reason { font-size: 0.95rem; color: var(--text); margin-bottom: 0.85rem; }
+      .simbar { margin-top: 0.7rem; }
+      .simbar .lab { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.7rem; color: var(--faint); margin-bottom: 0.3rem; }
+      .simbar .lab b { color: var(--warn); }
+      .track { height: 7px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; }
+      .track > i { display: block; height: 100%; background: var(--warn); border-radius: 999px; }
+
+      /* ── Pipeline ─────────────────────────────────────────── */
+      .pipe { display: flex; flex-wrap: wrap; align-items: center; gap: 0.55rem; margin-bottom: 1.4rem; }
+      .node {
+        padding: 0.6rem 0.95rem;
+        border-radius: 9px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        text-align: center;
+        min-width: 84px;
+      }
+      .node .n { font-weight: 650; font-size: 0.95rem; color: var(--text); }
+      .node .p { font-family: var(--mono); font-size: 0.66rem; color: var(--faint); margin-top: 0.1rem; }
+      .node.ours { border-color: rgba(118,185,0,0.5); background: rgba(118,185,0,0.07); }
+      .node.ours .n { color: var(--accent-2); }
+      .node.mem { border-color: rgba(116,169,214,0.45); }
+      .node.mem .n { color: var(--info); }
+      .node.guard { border-color: rgba(239,138,106,0.45); }
+      .node.guard .n { color: var(--warn); }
+      .arrow { color: var(--faint); font-size: 1.1rem; }
+      .ports { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.4rem; }
+      .port {
+        font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+        border: 1px solid var(--border); border-radius: 6px; padding: 0.28rem 0.6rem; background: var(--surface);
+      }
+      .port b { color: var(--text); }
+      .note-row { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; font-family: var(--mono); font-size: 0.78rem; color: var(--faint); margin-top: 0.2rem; }
+
+      /* ── Stat strip ───────────────────────────────────────── */
+      .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.6rem; }
+      .stat { border: 1px solid var(--border); background: var(--surface); border-radius: 11px; padding: 1.1rem 1.2rem; }
+      .stat .big { font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 800; letter-spacing: -0.03em; color: var(--accent-2); }
+      .stat .big.warn { color: var(--warn); }
+      .stat .big.info { color: var(--info); }
+      .stat .cap { font-size: 0.86rem; color: var(--muted); margin-top: 0.25rem; }
+
+      /* ── Demo beats ───────────────────────────────────────── */
+      .beats { list-style: none; margin: 0; padding: 0; counter-reset: b; display: grid; gap: 0.75rem; }
+      .beats > li {
+        display: flex; gap: 0.9rem; align-items: baseline;
+        padding: 0.7rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+        font-size: clamp(0.96rem, 1.5vw, 1.12rem); color: var(--muted);
+      }
+      .beats > li::before {
+        counter-increment: b; content: counter(b, decimal-leading-zero);
+        font-family: var(--mono); font-size: 0.8rem; color: var(--accent-2); font-weight: 700; flex-shrink: 0;
+      }
+      .beats > li b { color: var(--text); font-weight: 650; }
+      .beats > li.last { border-color: rgba(118,185,0,0.5); background: rgba(118,185,0,0.06); }
+      .beats > li.last::before { color: var(--accent-2); }
+
+      /* ── Close slide ──────────────────────────────────────── */
+      .team { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.7rem; margin: 1.6rem 0 0; }
+      .who-card { border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 0.85rem 1rem; }
+      .who-card .k { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+      .who-card .v { font-size: 0.95rem; color: var(--text); margin-top: 0.2rem; font-weight: 600; }
+      .who-card .d { font-size: 0.78rem; color: var(--faint); margin-top: 0.15rem; }
+
+      /* ── Responsive ───────────────────────────────────────── */
+      @media (max-width: 820px) {
+        .cards, .stats, .team { grid-template-columns: 1fr; }
+        .points.two, .guard-grid { grid-template-columns: 1fr; }
+        .slide { padding: 4.4rem 1.3rem 3.6rem; }
+        .brand, .footer .mid { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .slide { transition: opacity 0.01s; transform: none; }
+        .hint { animation: none; }
+        .progress > i { transition: none; }
+      }
+
+      /* ── Print → all slides stacked (Cmd-P for a PDF) ─────── */
+      @media print {
+        body { overflow: visible; background: #000; }
+        .brand, .footer, .progress, .nav { display: none; }
+        .deck { height: auto; }
+        .slide {
+          position: relative; inset: auto;
+          opacity: 1 !important; visibility: visible !important; transform: none !important;
+          page-break-after: always; min-height: 100vh; border-bottom: 1px solid #222;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="brand">
+      <div class="brand-mark">M</div>
+      <span class="brand-name">Mnemo</span>
+    </div>
+
+    <div class="deck" id="deck">
+      <!-- 1 ── Title ─────────────────────────────────────── -->
+      <section class="slide">
+        <div class="inner">
+          <div class="hero-mark">M</div>
+          <h1 class="title">Mnemo</h1>
+          <p class="title-sub"><b>Local memory for agentic coding tools.</b> Your agent finally remembers what your team already learned — without anything leaving the box.</p>
+          <div class="behaviors-line">
+            <span class="pill"><span class="dot" style="background:var(--accent)"></span>Capture</span>
+            <span class="pill"><span class="dot" style="background:var(--info)"></span>Recall</span>
+            <span class="pill"><span class="dot" style="background:var(--warn)"></span>Guard</span>
+            <span class="pill"><span class="dot" style="background:var(--neutral)"></span>Zero&nbsp;egress</span>
+          </div>
+          <div class="title-meta">
+            <span>Dell&nbsp;×&nbsp;NVIDIA GB10 Hackathon</span>
+            <span class="sep">/</span>
+            <span>Runs entirely on-box</span>
+            <span class="sep">/</span>
+            <span>4-person build</span>
+          </div>
+          <p class="hint">Press <kbd>→</kbd> or <kbd>Space</kbd> to advance &nbsp;·&nbsp; <kbd>F</kbd> for fullscreen</p>
+        </div>
+      </section>
+
+      <!-- 2 ── The problem ──────────────────────────────── -->
+      <section class="slide">
+        <div class="inner">
+          <span class="eyebrow"><span class="dot warn"></span><span class="num">01</span> · The problem</span>
+          <h2>Your coding agent has <span class="warn">amnesia.</span></h2>
+          <p class="lead">Every new session starts from zero. So every session, your team re-explains the same things by hand:</p>
+          <ul class="points">
+            <li class="info">The <b>stack and conventions</b> — re-pasted into the prompt, again.</li>
+            <li class="warn">Which <b>decisions</b> were made, and <b>why</b> — lost the moment the window closes.</li>
+            <li class="warn">What's already been <b>tried and failed</b> — so the agent confidently proposes the dead-end you already paid for.</li>
+          </ul>
+          <p class="kicker warn">A teammate learns once. An agent forgets every time.</p>
+        </div>
+      </section>
+
+      <!-- 3 ── The cost ─────────────────────────────────── -->
+      <section class="slide">
+        <div class="inner">
+          <span class="eyebrow"><span class="dot warn"></span><span class="num">02</span> · What amnesia costs</span>
+          <h2>It isn't annoying. <span class="warn">It's expensive.</span></h2>
+          <div class="chunk coral" style="margin-bottom:1.1rem">
+            <div class="meta"><span class="type">demo/payments</span><span class="who">· production incident</span></div>
+            <div class="body" style="font-size:1.08rem;line-height:1.55">
+              A payment webhook is failing. The agent helpfully adds a <b>retry loop</b> to re-send the charge until it goes through.
+              But the charge <b>already succeeded</b> upstream — so every retry creates a <b>second charge</b>. Customers get billed twice.
+            </div>
+          </div>
+          <p class="lead" style="margin-bottom:0">This already happened once. It was reverted the same day. But nothing stops the agent from suggesting <em>the exact same fix</em> again tomorrow — it never knew it failed.</p>
+          <p class="kicker warn">The same mistake, on repeat, at machine speed.</p>
+        </div>
+      </section>
+
+      <!-- 4 ── Why naive memory fails ───────────────────── -->
+      <section class="slide">
+        <div class="inner wide">
+          <span class="eyebrow"><span class="dot"></span><span class="num">03</span> · Why bolting on "memory" isn't enough</span>
+          <h2>Two ways naive memory makes it <span class="warn">worse.</span></h2>
+          <div class="cards" style="grid-template-columns:1fr 1fr;gap:1.1rem">
+            <div class="card coral">
+              <span class="tag">Failure 1 — drift</span>
+              <h3>Stale memory, read as current</h3>
+              <p>Dump transcripts into a vector store and recall resurfaces a decision that's <b>since been reversed</b>. The agent acts on a truth that expired. Confidently wrong is worse than blank.</p>
+            </div>
+            <div class="card coral">
+              <span class="tag">Failure 2 — exposure</span>
+              <h3>Crown jewels in the cloud</h3>
+              <p>Your code, decisions, and incidents are the <b>most sensitive thing you own</b>. Every memory tool ships them to someone else's servers and asks you to trust it.</p>
+            </div>
+          </div>
+          <p class="kicker">The more useful memory gets, the more dangerous it is to send away.</p>
+        </div>
+      </section>
+
+      <!-- 5 ── Meet Mnemo ───────────────────────────────── -->
+      <section class="slide">
+        <div class="inner wide">
+          <span class="eyebrow"><span class="dot"></span><span class="num">04</span> · The solution</span>
+          <h2>Mnemo — a <em>local memory plane</em> for your agent.</h2>
+          <p class="lead">It sits between your coding agent and the model. It <strong>captures</strong> what matters, <strong>recalls</strong> it before every turn, and <strong>guards</strong> against repeating mistakes — and every byte stays on the box.</p>
+          <div class="cards">
+            <div class="card green">
+              <span class="tag">Capture</span>
+              <h3>Remember the right things</h3>
+              <p>Typed, attributed knowledge chunks from every session — decisions, dead-ends, conventions. Not raw transcripts.</p>
+            </div>
+            <div class="card blue">
+              <span class="tag">Recall</span>
+              <h3>Surface them in time</h3>
+              <p>The most load-bearing memory for the repo, prepended to the model before it answers a single turn.</p>
+            </div>
+            <div class="card coral">
+              <span class="tag">Guard</span>
+              <h3>Stop the repeat</h3>
+              <p>Checks the agent's output against known dead-ends and locked decisions — and blocks the mistake before it ships.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 ── Capture ──────────────────────────────────── -->
+      <section class="slide">
+        <div class="inner">
+          <span class="eyebrow"><span class="dot"></span><span class="num">05</span> · Capture</span>
+          <h2>Typed memory, <em>not transcripts.</em></h2>
+          <p class="lead">Mnemo extracts structured, attributed chunks from each session — each one a small, queryable fact with a type:</p>
+          <div class="chips">
+            <span class="chip"><span class="dot" style="background:var(--accent)"></span>decision</span>
+            <span class="chip"><span class="dot" style="background:var(--warn)"></span>dead-end</span>
+            <span class="chip"><span class="dot" style="background:var(--info)"></span>finding</span>
+            <span class="chip"><span class="dot" style="background:var(--neutral)"></span>convention</span>
+            <span class="chip"><span class="dot" style="background:var(--neutral)"></span>state</span>
+            <span class="chip"><span class="dot" style="background:var(--neutral)"></span>context</span>
+          </div>
+          <ul class="points two">
+            <li><b>Supersession</b> — a better decision retires the old one. Exactly one stays active per topic; history is kept, not confused for the present.</li>
+            <li class="info"><b>Dedup</b> — near-identical chunks are recognised and dropped (0.96 ≥ 0.95). No bloat, no drift.</li>
+            <li class="warn"><b>Provenance</b> — every chunk keeps <b>who</b> said it and <b>why</b>. Reasoning, not just text.</li>
+            <li><b>On the box</b> — extraction runs on a local model. Nothing is sent out to be "remembered."</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 7 ── Recall ───────────────────────────────────── -->
+      <section class="slide">
+        <div class="inner">
+          <span class="eyebrow"><span class="dot info"></span><span class="num">06</span> · Recall</span>
+          <h2>The right memory, <span class="info">before every turn.</span></h2>
+          <p class="lead">Before the model sees a turn, Mnemo selects the most load-bearing memory for that repo and prepends it — so the agent walks in already knowing what your team knows.</p>
+          <div class="recall">
+<span class="row"><span class="tag">[mnemo:recall]</span> <span class="txt">demo/payments — most load-bearing memory, injected this turn</span></span>
+<span class="row"> </span>
+<span class="row">  <span class="t-dead">● dead-end  </span> <span class="who">@priya </span> <span class="txt">naive retry on a failed webhook double-charged</span></span>
+<span class="row">                       <span class="txt">customers in production — reverted same day</span></span>
+<span class="row">  <span class="t-dec">● decision </span> <span class="who">@priya </span> <span class="txt">retries must send an Idempotency-Key derived</span></span>
+<span class="row">                       <span class="txt">from the event id · supersedes the naive resend</span></span>
+<span class="row">  <span class="t-conv">● convention</span> <span class="who">@marcus</span> <span class="txt">verify the Stripe-Signature header first</span></span>
+<span class="row"> </span>
+<span class="row">  <span class="foot">3 chunks · selected by relevance + recency · 0 bytes sent off-box</span></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 ── Guard ────────────────────────────────────── -->
+      <section class="slide">
+        <div class="inner wide">
+          <span class="eyebrow"><span class="dot warn"></span><span class="num">07</span> · Guard</span>
+          <h2>Block the repeat <span class="warn">before it ships.</span></h2>
+          <p class="lead" style="margin-bottom:1.3rem">After the model answers, Guard checks the output against the dead-ends and locked decisions Mnemo already holds. Watch the double-charge loop close:</p>
+          <div class="guard-grid">
+            <div class="agent-say">
+              <div class="who">Agent proposes</div>
+              <div class="quote">"I'll add a retry loop that re-sends the failed charge a few times until it goes through."</div>
+            </div>
+            <div class="alert">
+              <div class="hd"><span class="dot"></span>Guard · fired</div>
+              <div class="reason">Re-implements the naive webhook retry that caused double-charges in production. A locked decision requires <b>idempotency-key</b> retries instead.</div>
+              <div class="simbar">
+                <div class="lab"><span>matched dead-end · sess-0428</span><b>0.94 sim</b></div>
+                <div class="track"><i style="width:94%"></i></div>
+              </div>
+              <div class="simbar">
+                <div class="lab"><span>judge confidence</span><b>0.88</b></div>
+                <div class="track"><i style="width:88%"></i></div>
+              </div>
+            </div>
+          </div>
+          <p class="kicker warn">The mistake that cost you once can't cost you twice.</p>
+        </div>
+      </section>
+
+      <!-- 9 ── Local-first wedge ────────────────────────── -->
+      <section class="slide">
+        <div class="inner">
+          <span class="eyebrow"><span class="dot"></span><span class="num">08</span> · Why local wins</span>
+          <h2>Local isn't a feature. <em>It's the only architecture that works.</em></h2>
+          <ul class="points">
+            <li><b>Zero egress</b> — inference, memory, and extraction never leave the box. Nothing to leak, nothing to trust.</li>
+            <li class="info">The more agentic Mnemo gets — full-repo context, live execution — the more impossible the cloud becomes. Local stops being a compliance checkbox and becomes the <b>only allowed design</b>.</li>
+            <li><b>Built for the GB10</b> — 128&nbsp;GB unified memory holds the LLM, the embeddings, and the guard model <b>resident at once</b>. A laptop can't; a datacenter you don't control, you won't.</li>
+          </ul>
+          <p class="kicker">Pull the network cable mid-demo — Mnemo keeps running. <span class="accent">Offline · still running.</span></p>
+        </div>
+      </section>
+
+      <!-- 10 ── Architecture ────────────────────────────── -->
+      <section class="slide">
+        <div class="inner wide">
+          <span class="eyebrow"><span class="dot"></span><span class="num">09</span> · Architecture</span>
+          <h2>One proxy. Every turn. <em>Fail-open.</em></h2>
+          <p class="lead" style="margin-bottom:1.2rem">The agent's traffic flows through a thin local proxy that orchestrates the whole loop:</p>
+          <div class="pipe">
+            <div class="node"><div class="n">OpenClaw</div><div class="p">agent</div></div>
+            <span class="arrow">→</span>
+            <div class="node ours"><div class="n">Proxy</div><div class="p">:8100</div></div>
+            <span class="arrow">→</span>
+            <div class="node mem"><div class="n">Recall</div><div class="p">:8090</div></div>
+            <span class="arrow">→</span>
+            <div class="node"><div class="n">vLLM</div><div class="p">:8000</div></div>
+            <span class="arrow">→</span>
+            <div class="node guard"><div class="n">Guard</div><div class="p">:8300</div></div>
+            <span class="arrow">→</span>
+            <div class="node"><div class="n">response</div><div class="p">+ warning</div></div>
+          </div>
+          <div class="note-row" style="margin-bottom:1.2rem">
+            <span>↺ Capture runs in the background after each turn</span>
+            <span>· Recall &amp; Guard fail-open — never block the agent</span>
+          </div>
+          <div class="ports">
+            <span class="port"><b>vLLM</b> :8000</span>
+            <span class="port"><b>memory-core</b> :8090</span>
+            <span class="port"><b>guard</b> :8300</span>
+            <span class="port"><b>proxy</b> :8100</span>
+            <span class="port"><b>dashboard</b> :5173</span>
+          </div>
+          <p class="note-row" style="margin-top:1rem;color:var(--faint)">Full diagrams: <span style="color:var(--info)">/architecture.html</span></p>
+        </div>
+      </section>
+
+      <!-- 11 ── Demo ────────────────────────────────────── -->
+      <section class="slide">
+        <div class="inner">
+          <span class="eyebrow"><span class="dot"></span><span class="num">10</span> · Live demo</span>
+          <h2>What you'll see, on the box.</h2>
+          <ul class="beats">
+            <li><b>Capture builds up</b> — typed chunks land in the feed as the agent works the payments repo.</li>
+            <li><b>A better decision supersedes the old one</b> — the idempotency rule retires the naive retry; one truth stays active.</li>
+            <li><b>A near-duplicate is dropped</b> — Mnemo recognises it and skips it. No bloat.</li>
+            <li><b>The agent proposes the naive retry</b> — Guard fires at 0.94 and blocks the double-charge before it ships.</li>
+            <li class="last"><b>We pull the network cable</b> — and it all keeps running. Zero egress, proven on stage.</li>
+          </ul>
+          <p class="note-row" style="margin-top:1.1rem;color:var(--faint)">The dashboard falls back to seed data when the backend is down — so the demo can't fail, with a network or without one.</p>
+        </div>
+      </section>
+
+      <!-- 12 ── Close ───────────────────────────────────── -->
+      <section class="slide">
+        <div class="inner wide">
+          <div class="hero-mark" style="width:56px;height:56px;font-size:1.6rem;margin-bottom:1.1rem">M</div>
+          <h2 style="font-size:clamp(2rem,5vw,3.4rem)">Give your agent a memory it can <em>trust</em> —<br/>and never let it leave the building.</h2>
+          <div class="team">
+            <div class="who-card"><div class="k">Person A</div><div class="v">Inference proxy</div><div class="d">recall · guard · capture</div></div>
+            <div class="who-card"><div class="k">Person B</div><div class="v">memory-core</div><div class="d">capture · dedup · recall</div></div>
+            <div class="who-card"><div class="k">Person C</div><div class="v">Guard</div><div class="d">similarity + NLI judge</div></div>
+            <div class="who-card"><div class="k">Person D</div><div class="v">Dashboard</div><div class="d">observe · demo · pitch</div></div>
+          </div>
+          <p class="lead" style="margin-top:1.5rem;margin-bottom:0">Built on <strong>cntxt's</strong> structured-memory engine, ported to run <strong>fully local</strong> on the Dell Pro Max with GB10.</p>
+          <div class="behaviors-line" style="margin-top:1.2rem">
+            <span class="pill"><span class="dot" style="background:var(--accent)"></span>Capture</span>
+            <span class="pill"><span class="dot" style="background:var(--info)"></span>Recall</span>
+            <span class="pill"><span class="dot" style="background:var(--warn)"></span>Guard</span>
+            <span class="pill"><span class="dot" style="background:var(--neutral)"></span>Zero&nbsp;egress</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Chrome -->
+    <div class="footer">
+      <span class="egress" id="egress"><span class="dot"></span>on-box · zero egress</span>
+      <span class="mid">Mnemo · local memory plane</span>
+      <span class="counter"><b id="cur">1</b> / <span id="total">12</span></span>
+    </div>
+    <div class="nav">
+      <button id="prev" aria-label="Previous slide">‹</button>
+      <button id="next" aria-label="Next slide">›</button>
+    </div>
+    <div class="progress"><i id="bar"></i></div>
+
+    <script>
+      const slides = Array.from(document.querySelectorAll('.slide'))
+      const total = slides.length
+      const bar = document.getElementById('bar')
+      const cur = document.getElementById('cur')
+      document.getElementById('total').textContent = total
+
+      let i = 0
+
+      function clamp(n) { return Math.max(0, Math.min(total - 1, n)) }
+
+      function render() {
+        slides.forEach((s, n) => s.classList.toggle('is-active', n === i))
+        bar.style.width = ((i + 1) / total) * 100 + '%'
+        cur.textContent = i + 1
+        if (history.replaceState) history.replaceState(null, '', '#' + (i + 1))
+      }
+
+      function go(n) {
+        const next = clamp(n)
+        if (next === i) return
+        i = next
+        render()
+      }
+      const next = () => go(i + 1)
+      const prev = () => go(i - 1)
+
+      // Keyboard — covers arrow keys, space, page up/down, and most presentation clickers.
+      window.addEventListener('keydown', (e) => {
+        switch (e.key) {
+          case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown': case 'Enter':
+            e.preventDefault(); next(); break
+          case 'ArrowLeft': case 'ArrowUp': case 'PageUp': case 'Backspace':
+            e.preventDefault(); prev(); break
+          case 'Home': e.preventDefault(); go(0); break
+          case 'End': e.preventDefault(); go(total - 1); break
+          case 'f': case 'F':
+            if (document.fullscreenElement) document.exitFullscreen()
+            else document.documentElement.requestFullscreen?.()
+            break
+        }
+      })
+
+      document.getElementById('next').addEventListener('click', next)
+      document.getElementById('prev').addEventListener('click', prev)
+
+      // Click left/right halves to move — but never hijack links or the nav buttons.
+      document.getElementById('deck').addEventListener('click', (e) => {
+        if (e.target.closest('a, button, [data-no-advance]')) return
+        if (e.clientX < window.innerWidth * 0.32) prev()
+        else next()
+      })
+
+      // Touch swipe.
+      let tx = null
+      window.addEventListener('touchstart', (e) => { tx = e.changedTouches[0].clientX }, { passive: true })
+      window.addEventListener('touchend', (e) => {
+        if (tx === null) return
+        const dx = e.changedTouches[0].clientX - tx
+        if (Math.abs(dx) > 50) (dx < 0 ? next : prev)()
+        tx = null
+      }, { passive: true })
+
+      // Deep-link: open on the slide named in the hash (#7).
+      const start = parseInt((location.hash || '').slice(1), 10)
+      if (!Number.isNaN(start)) i = clamp(start - 1)
+      render()
+    </script>
+  </body>
+</html>
